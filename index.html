@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pac-Man</title>
+  <style>
+    canvas {
+      background-color: black;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="448" height="496"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const TILE_SIZE = 32;
+    const ROWS = 15;
+    const COLS = 14;
+
+    const maze = [
+      "11111111111111",
+      "10000000000001",
+      "10111101111001",
+      "10000001000001",
+      "10111011101101",
+      "10001000001001",
+      "10101111011001",
+      "10000000000001",
+      "10111101111101",
+      "10000001000001",
+      "10101111111001",
+      "10000000000001",
+      "10111111111101",
+      "10000000000001",
+      "11111111111111"
+    ];
+
+    let pacman = {
+      x: 1,
+      y: 1,
+      dx: 0,
+      dy: 0,
+      color: "yellow"
+    };
+
+    function drawMaze() {
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          if (maze[row][col] === "1") {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          }
+        }
+      }
+    }
+
+    function drawPacman() {
+      ctx.beginPath();
+      ctx.arc(
+        pacman.x * TILE_SIZE + TILE_SIZE / 2,
+        pacman.y * TILE_SIZE + TILE_SIZE / 2,
+        TILE_SIZE / 2 - 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = pacman.color;
+      ctx.fill();
+    }
+
+    function canMove(x, y) {
+      if (y < 0 || y >= ROWS || x < 0 || x >= COLS) return false;
+      return maze[y][x] === "0";
+    }
+
+    function update() {
+      const nextX = pacman.x + pacman.dx;
+      const nextY = pacman.y + pacman.dy;
+      if (canMove(nextX, nextY)) {
+        pacman.x = nextX;
+        pacman.y = nextY;
+      }
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawMaze();
+      drawPacman();
+      update();
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowLeft":
+          if (canMove(pacman.x - 1, pacman.y)) {
+            pacman.dx = -1;
+            pacman.dy = 0;
+          }
+          break;
+        case "ArrowRight":
+          if (canMove(pacman.x + 1, pacman.y)) {
+            pacman.dx = 1;
+            pacman.dy = 0;
+          }
+          break;
+        case "ArrowUp":
+          if (canMove(pacman.x, pacman.y - 1)) {
+            pacman.dx = 0;
+            pacman.dy = -1;
+          }
+          break;
+        case "ArrowDown":
+          if (canMove(pacman.x, pacman.y + 1)) {
+            pacman.dx = 0;
+            pacman.dy = 1;
+          }
+          break;
+      }
+    });
+
+    gameLoop();
+  </script>
+</body>
+</html>
